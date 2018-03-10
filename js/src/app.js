@@ -1,4 +1,10 @@
-window.Vue = require('vue');
+import Vue from 'vue'
+import axios from 'axios'
+import VueAxios from 'vue-axios'
+
+Vue.use(VueAxios, axios)
+
+// chapters
 
 Vue.component('chapters', require('./components/Chapters.vue'));
 Vue.component('chapter', require('./components/Chapter.vue'));
@@ -9,6 +15,18 @@ if (document.getElementById('podlove-chapters-app')) {
         el: '#podlove-chapters-app'
     });
 }
+
+// transcripts
+
+Vue.component('transcripts', require('./components/Transcripts.vue'));
+
+if (document.getElementById('podlove-transcripts-app')) {
+    window.transcriptsApp = new Vue({
+        el: '#podlove-transcripts-app'
+    });
+}
+
+// job dashboard
 
 Vue.component('jobs-dashboard', require('./components/JobsDashboard.vue'));
 
