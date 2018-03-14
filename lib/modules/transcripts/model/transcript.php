@@ -40,9 +40,10 @@ class Transcript extends \Podlove\Model\Base
 		global $wpdb;
 
 		$sql = '
-			SELECT t.start, t.end, t.content, t.voice, va.contributor_id
+			SELECT t.start, t.end, t.content, t.voice, va.contributor_id, c.identifier
 			FROM ' . static::table_name() . ' t 
 			LEFT JOIN ' . VoiceAssignment::table_name() . ' va ON va.`episode_id` = t.`episode_id` AND va.voice = t.voice
+			LEFT JOIN ' . \Podlove\Modules\Contributors\Model\Contributor::table_name() . ' c ON c.id = va.contributor_id
 			WHERE t.voice IS NOT NULL AND t.episode_id = ' . (int) $episode_id . ' 
 			ORDER BY t.start ASC';
 

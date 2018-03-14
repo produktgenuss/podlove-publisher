@@ -205,7 +205,7 @@ class Transcripts extends \Podlove\Modules\Base {
 			return [
 				'start' => $format_time($t->start),
 				'end' => $format_time($t->end),
-				'speaker' => $t->voice,
+				'speaker' => $t->identifier,
 				'text' => $t->content,
 			];
 		}, $transcript);
