@@ -1,8 +1,11 @@
 import Vue from 'vue'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
+import vSelect from 'vue-select'
 
 Vue.use(VueAxios, axios)
+
+Vue.component('v-select', vSelect)
 
 // chapters
 

@@ -59,7 +59,9 @@ class Html5Printer implements \Podlove\Modules\PodloveWebPlayer\PlayerPrinterInt
 			],
 			'theme' => [
 				'main' => self::sanitize_color($player_settings['playerv4_color_primary'], '#000')
-			]
+			],
+			// todo: add parameter with add_query_arg
+			'transcripts' => get_permalink($episode->post_id) . '?podlove_transcript=json'
 		];
 
 		if (!Module::use_cdn()) {

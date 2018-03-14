@@ -8,6 +8,8 @@ use Podlove\Model;
 use Podlove\Webvtt\Parser;
 use Podlove\Webvtt\ParserException;
 
+use Podlove\Modules\Contributors\Model\Contributor;
+
 class Transcripts extends \Podlove\Modules\Base {
 
 	protected $module_name = 'Transcripts';
@@ -19,6 +21,44 @@ class Transcripts extends \Podlove\Modules\Base {
 		add_action('podlove_module_was_activated_transcripts', [$this, 'was_activated']);
 		add_filter('podlove_episode_form_data', [$this, 'extend_episode_form'], 10, 2);
 		add_action('wp_ajax_podlove_transcript_import', [$this, 'ajax_transcript_import']);
+		add_action('wp_ajax_podlove_transcript_get_contributors', [$this, 'ajax_transcript_get_contributors']);
+		add_action('wp_ajax_podlove_transcript_get_voices', [$this, 'ajax_transcript_get_voices']);
+
+		add_filter('podlove_episode_data_filter', function ($filter) {
+			return array_merge($filter, [
+				'transcript_voice'  => [ 'flags' => FILTER_REQUIRE_ARRAY, 'filter' => FILTER_SANITIZE_NUMBER_INT ]
+			]);
+		});
+
+		add_filter('podlove_episode_data_before_save', function ($data) {
+
+			$post_id = get_the_ID();
+			$episode = Model\Episode::find_one_by_post_id($post_id);
+
+			error_log(print_r($episode, true));
+
+			if (!$episode) {
+				return $data;
+			}
+
+			VoiceAssignment::delete_for_episode($episode->id);
+
+			foreach ($data['transcript_voice'] as $voice => $id) {
+				if ($id > 0) {
+					$voice_assignment = new VoiceAssignment;
+					$voice_assignment->episode_id = $episode->id;
+					$voice_assignment->voice = $voice;
+					$voice_assignment->contributor_id = $id;
+					$voice_assignment->save();
+				}
+			}
+
+			// not saved in traditional way
+			unset($data['transcript_voice']); 
+			return $data;
+		});
+
+		add_action('wp', [$this, 'serve_transcript_file']);
 	}
 
 	public function was_activated($module_name) {
@@ -101,5 +141,74 @@ class Transcripts extends \Podlove\Modules\Base {
 		}
 
 		wp_die();
+	}
+
+	public function ajax_transcript_get_contributors()
+	{
+		$contributors = Contributor::all();
+		$contributors = array_map(function ($c) {
+			return [
+				'id' => $c->id,
+				'name' => $c->getName(),
+				'identifier' => $c->identifier,
+				'avatar' => $c->avatar()->url()
+			];
+		}, $contributors);
+
+		\Podlove\AJAX\Ajax::respond_with_json(['contributors' => $contributors]);
+	}
+
+	public function ajax_transcript_get_voices()
+	{
+		$post_id = intval($_GET['post_id'], 10);
+		$episode = Model\Episode::find_one_by_post_id($post_id);
+		$voices = Transcript::get_voices_for_episode_id($episode->id);
+		\Podlove\AJAX\Ajax::respond_with_json(['voices' => $voices]);
+	}
+
+	public function serve_transcript_file()
+	{
+		if ( ! is_single() )
+			return;
+
+		$format = filter_input(INPUT_GET, 'podlove_transcript', FILTER_VALIDATE_REGEXP, [
+			'options' => ['regexp' => "/^(json|webvtt)$/"]
+		]);
+
+		if ( ! $format )
+			return;
+
+		if ( ! $episode = Model\Episode::find_one_by_post_id( get_the_ID() ) )
+			return;
+
+		switch ( $format ) {
+			case 'webvtt':
+				header("Content-Type: text/vtt");
+				break;
+			case 'json':
+				header("Content-Type: application/json");
+				break;
+		}
+
+		$format_time = function ($time_ms)
+		{
+			$ms = $time_ms % 1000;
+			$seconds = floor($time_ms / 1000) % 60;
+			$minutes = floor($time_ms / (1000 * 60)) % 60;
+			$hours = (int) floor($time_ms / (1000 * 60 * 60));
+
+			return sprintf("%02d:%02d:%02d.%03d", $hours, $minutes, $seconds, $ms);
+		};
+		
+		$transcript = Transcript::get_transcript($episode->id);
+		$transcript = array_map(function ($t) use ($format_time) {
+			return [
+				'start' => $format_time($t->start),
+				'end' => $format_time($t->end),
+				'speaker' => $t->voice,
+				'text' => $t->content,
+			];
+		}, $transcript);
+		\Podlove\AJAX\Ajax::respond_with_json($transcript);;
 	}
 }

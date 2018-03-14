@@ -19,6 +19,35 @@ class Transcript extends \Podlove\Model\Base
 
 		return $wpdb->query($sql);
 	}
+
+	public static function get_voices_for_episode_id($episode_id)
+	{
+		global $wpdb;
+
+		$sql = '
+			SELECT DISTINCT t.voice, va.`contributor_id`
+			FROM ' . static::table_name() . ' t 
+			LEFT JOIN ' . VoiceAssignment::table_name() . ' va 
+			  ON va.`episode_id` = t.`episode_id` AND va.voice = t.voice
+			WHERE t.voice IS NOT NULL 
+			  AND t.episode_id = ' . (int) $episode_id;
+
+		return $wpdb->get_results($sql);
+	}
+
+	public static function get_transcript($episode_id)
+	{
+		global $wpdb;
+
+		$sql = '
+			SELECT t.start, t.end, t.content, t.voice, va.contributor_id
+			FROM ' . static::table_name() . ' t 
+			LEFT JOIN ' . VoiceAssignment::table_name() . ' va ON va.`episode_id` = t.`episode_id` AND va.voice = t.voice
+			WHERE t.voice IS NOT NULL AND t.episode_id = ' . (int) $episode_id . ' 
+			ORDER BY t.start ASC';
+
+		return $wpdb->get_results($sql);
+	}
 }
 
 Transcript::property('id', 'INT NOT NULL AUTO_INCREMENT PRIMARY KEY');

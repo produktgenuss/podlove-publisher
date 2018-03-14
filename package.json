@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "vue-axios": "^2.0.2"
+    "vue-axios": "^2.0.2",
+    "vue-select": "^2.4.0"
   }
 }

@@ -30,6 +30,23 @@
 
         </div>
 
+        <div class="row voices" v-show="mode == 'voices'">
+            <div class="voice col-md-12" v-for="(voice, index) in voices">
+                <div class="voice-label">
+                    {{ voice.label }}
+                </div>
+                <div class="voice-assignment">
+                    <v-select :options="contributorsOptions" v-model="voice.option" style="width: 300px">
+                        <template slot="option" slot-scope="option">
+                            <img :src="option.avatar" width="16" height="16" />
+                            {{ option.label }}
+                        </template>                          
+                    </v-select>
+                    <input type="hidden" :name="'_podlove_meta[transcript_voice][' + voice.label + ']'" :value="voice.option.value" v-if="voice.option">
+                </div>
+            </div>
+        </div>  
+
         <div class="row import" v-show="mode == 'import'">
             <p>
                 <form>
@@ -47,9 +64,11 @@
 export default {
     data() {
         return {
-            mode: 'import',
+            mode: 'voices',
             importing: false,
-            lastError: ''
+            lastError: '',
+            voices: null,
+            contributors: null
         }
     },
 
@@ -62,6 +81,11 @@ export default {
             } else {
                 return "Accepts: WebVTT"
             }
+        },
+        contributorsOptions: function() {
+            return this.contributors.map((c) => {
+                return {label: c.name, value: c.id, avatar: c.avatar}
+            })
         }
     },
 
@@ -89,6 +113,7 @@ export default {
                 if (data.error) {
                     this.lastError = data.error
                 } else {
+                    this.fetchVoices()
                     this.mode = 'voices';
                 }
                 this.importing = false;
@@ -100,7 +125,46 @@ export default {
         },
         doImportTranscript(text) {
             console.log("import", text);
+        },
+        fetchContributors(done) {
+            this.axios.get(ajaxurl, {params: {action: 'podlove_transcript_get_contributors'}}).then(({data}) => {
+                if (data.error) {
+                    // this.lastError = data.error
+                } else {
+                    this.contributors = data.contributors
+                    if (done) {
+                        done()
+                    }
+                }
+            })
+        },
+        fetchVoices() {
+            this.axios.get(ajaxurl, {
+                params: {
+                    action: 'podlove_transcript_get_voices',
+                    post_id: document.querySelector('#post_ID').value
+                }
+            }).then(({data}) => {
+                if (data.error) {
+                    // this.lastError = data.error
+                } else {
+                    this.voices = data.voices.map((k) => {
+                        
+                        let option = this.contributorsOptions.find((co) => {
+                            return co.value == k.contributor_id
+                        })
+
+                        return {label: k.voice, value: k.contributor_id, option: option}
+                    })
+                }
+            })
         }
+    },
+
+    mounted() {
+        this.fetchContributors(() => {
+            this.fetchVoices()
+        })
     }
 }
 </script>
@@ -108,6 +172,23 @@ export default {
 <style type="text/css">
 .row {
     position: relative;
+}
+.row.voices {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.row.voices .voice {
+    display: flex;
+    padding: 2px;
+}
+.row.voices .voice:nth-child(odd) {
+    background: #F6F6F6;
+}
+.voice-label {
+    width: 105px;
+    line-height: 38px;
+    padding-left: 2px;
 }
 .col-md-12 {
     width: 100%;

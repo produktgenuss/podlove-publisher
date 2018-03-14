@@ -8,6 +8,17 @@ class VoiceAssignment extends \Podlove\Model\Base
 	public function __construct() {
 		$this->set_blog_id();
 	}
+	
+	public static function delete_for_episode($episode_id)
+	{
+		global $wpdb;
+
+		$sql = 'DELETE FROM '
+		     . static::table_name()
+		     . ' WHERE episode_id = ' . (int) $episode_id;
+
+		return $wpdb->query($sql);
+	}
 }
 
 VoiceAssignment::property('id', 'INT NOT NULL AUTO_INCREMENT PRIMARY KEY');
