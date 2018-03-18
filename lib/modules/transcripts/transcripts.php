@@ -181,34 +181,23 @@ class Transcripts extends \Podlove\Modules\Base {
 		if ( ! $episode = Model\Episode::find_one_by_post_id( get_the_ID() ) )
 			return;
 
-		switch ( $format ) {
+		$renderer = new Renderer($episode);
+
+		switch ($format) {
 			case 'webvtt':
+				header('Cache-Control: no-cache, must-revalidate');
+				header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 				header("Content-Type: text/vtt");
+				echo $renderer->as_webvtt();
+				exit;
 				break;
 			case 'json':
-				header("Content-Type: application/json");
+				header('Cache-Control: no-cache, must-revalidate');
+				header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+				header('Content-type: application/json');
+				echo $renderer->as_json();
+				exit;
 				break;
 		}
-
-		$format_time = function ($time_ms)
-		{
-			$ms = $time_ms % 1000;
-			$seconds = floor($time_ms / 1000) % 60;
-			$minutes = floor($time_ms / (1000 * 60)) % 60;
-			$hours = (int) floor($time_ms / (1000 * 60 * 60));
-
-			return sprintf("%02d:%02d:%02d.%03d", $hours, $minutes, $seconds, $ms);
-		};
-		
-		$transcript = Transcript::get_transcript($episode->id);
-		$transcript = array_map(function ($t) use ($format_time) {
-			return [
-				'start' => $format_time($t->start),
-				'end' => $format_time($t->end),
-				'speaker' => $t->identifier,
-				'text' => $t->content,
-			];
-		}, $transcript);
-		\Podlove\AJAX\Ajax::respond_with_json($transcript);;
 	}
 }
