@@ -57,6 +57,13 @@
             </p>
         </div>  
 
+        <div class="row export" v-show="mode == 'export'">
+            <p>
+                <a class="button button-secondary" :href="webvttDownloadHref" download="transcript.webvtt">Export webvtt</a>
+                <a class="button button-secondary" :href="jsonDownloadHref" download="transcript.json">Export json</a> 
+            </p>
+        </div>
+
     </div>
 </template>
 
@@ -86,6 +93,18 @@ export default {
             return this.contributors.map((c) => {
                 return {label: c.name, value: c.id, avatar: c.avatar}
             })
+        },
+        webvttDownloadHref: function() {
+            const post_id = document.querySelector('#post_ID').value
+            const host = window.location.hostname;
+
+            return "//" + host + "?p=" + post_id + "&podlove_transcript=webvtt"
+        },
+        jsonDownloadHref: function() {
+            const post_id = document.querySelector('#post_ID').value
+            const host = window.location.hostname;
+
+            return "//" + host + "?p=" + post_id + "&podlove_transcript=json"
         }
     },
 
