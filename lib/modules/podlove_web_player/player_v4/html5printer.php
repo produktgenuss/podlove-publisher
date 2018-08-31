@@ -44,7 +44,10 @@ class Html5Printer implements \Podlove\Modules\PodloveWebPlayer\PlayerPrinterInt
 
 		$podcast = Podcast::get();
 
-		$player_settings = \Podlove\get_webplayer_settings();
+		$configurator = new \Podlove_Web_Player;
+		$configurator_options = new \Podlove_Web_Player_Options($configurator->get_plugin_name());
+
+		$base_config = $configurator_options->read();
 
 		$config = [
 			'show' => [
@@ -56,19 +59,13 @@ class Html5Printer implements \Podlove\Modules\PodloveWebPlayer\PlayerPrinterInt
 			],
 			'reference' => [
 				'share'  => trailingslashit(plugins_url('dist', __FILE__)) . 'share.html',
-			],
-			'theme' => [
-				'main' => self::sanitize_color($player_settings['playerv4_color_primary'], '#000')
 			]
 		];
 
+		$config = array_merge($base_config, $config);
+
 		if (!Module::use_cdn()) {
 			$config['reference']['base'] = plugins_url('dist', __FILE__);
-		}
-
-		$highlight_color = self::sanitize_color($player_settings['playerv4_color_secondary'], false);
-		if ($highlight_color !== false) {
-			$config['theme']['highlight'] = $highlight_color;
 		}
 		
 		if ($episode) {

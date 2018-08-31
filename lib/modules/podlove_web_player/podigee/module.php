@@ -28,6 +28,19 @@ class Module {
 			'position' => 500
 		];
 
+		$form_data[] = [
+				'type' => 'select',
+				'key' => 'chaptersVisible',
+				'options' => array(
+					'label'   => __( 'Chapters Visibility', 'podlove-podcasting-plugin-for-wordpress' ),
+					'options' => array(
+						'true'  => __( 'Visible when player loads', 'podlove-podcasting-plugin-for-wordpress' ),
+						'false' => __( 'Hidden when player loads', 'podlove-podcasting-plugin-for-wordpress' )
+					)
+				),
+				'position' => 300
+		];
+		
 		return $form_data;
 	}
 

@@ -58,18 +58,6 @@ class Player extends Tab {
 					)
 				],
 				'position' => 100
-			],
-			[
-				'type' => 'select',
-				'key' => 'chaptersVisible',
-				'options' => array(
-					'label'   => __( 'Chapters Visibility', 'podlove-podcasting-plugin-for-wordpress' ),
-					'options' => array(
-						'true'  => __( 'Visible when player loads', 'podlove-podcasting-plugin-for-wordpress' ),
-						'false' => __( 'Hidden when player loads', 'podlove-podcasting-plugin-for-wordpress' )
-					)
-				),
-				'position' => 300
 			]
 		];
 

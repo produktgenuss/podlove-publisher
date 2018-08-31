@@ -156,30 +156,19 @@ class Module {
 
 	public function add_player_settings($form_data) {
 		
-		$form_data[] = [
-			'type' => 'string',
-			'key'  => 'playerv4_color_primary',
-			'options' => [
-				'label' => 'Primary Color',
-				'description' => __('Hex, rgb or rgba', 'podlove-podcasting-plugin-for-wordpress')
-			],
-			'position' => 500
-		];
-
-		$form_data[] = [
-			'type' => 'string',
-			'key'  => 'playerv4_color_secondary',
-			'options' => [
-				'label' => 'Secondary Color (optional)',
-				'description' => __('Hex, rgb or rgba', 'podlove-podcasting-plugin-for-wordpress')
-			],
-			'position' => 495
-		];
-
-		// remove "chapter visibility" setting
-		$form_data = array_filter($form_data, function ($entry) {
-			return $entry['key'] !== 'chaptersVisible';
-		});
+	$form_data[] = array(
+		'type' => 'callback',
+		'key'  => 'configthing',
+		'options' => array(
+			'callback' => function () {
+?>
+<a href="<?php echo admin_url('options-general.php?page=podlove-web-player-settings'); ?>" class="button">Go to Podlove Web Player Configurator</a>
+<?php
+			},
+			'label'       => __( 'Configurator', 'podlove-podcasting-plugin-for-wordpress' )
+		),
+		'position' => 450
+	);
 
 		return $form_data;
 	}

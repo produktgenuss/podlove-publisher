@@ -11,8 +11,11 @@ class Podlove_Web_Player extends \Podlove\Modules\Base {
 
 	public function load() {
 
+		require_once plugin_dir_path( __FILE__ ) . 'configurator/podlove-web-player.php';
+
 		switch (\Podlove\get_webplayer_setting('version')) {
 			case 'player_v4':
+			  run_podlove_web_player();
 				(new PlayerV4\Module)->load();
 				break;
 			case 'player_v3':
