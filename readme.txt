@@ -5,7 +5,7 @@ Tags: podlove, podcast, publishing, rss, feed, audio, mp3, m4a, player, webplaye
 Requires at least: 4.4
 Tested up to: 5.2
 Requires PHP: 5.4
-Stable tag: 2.8.6
+Stable tag: 2.9.0
 License: MIT
 
 The one and only next generation podcast publishing system. Seriously. It's magical and sparkles a lot.
@@ -107,89 +107,9 @@ This product includes GeoLite2 data created by MaxMind, available from http://ww
 
 == Changelog ==
 
-= 2.8.0 =
+= 2019-05-12 =
 
-**Transcripts**
-
-“Transcripts” is the new module to manage transcripts, show them on your site and in the web player. You can import them from webvtt files. If you are already using the Podlove Publisher contributors, you can assign people to the voices inside the webvtt. Then you even get avatars automatically in your transcripts.
-
-See [https://forschergeist.de/podcast/fg066-klimaneutralitaet/](https://forschergeist.de/podcast/fg066-klimaneutralitaet/) for an example episode with transcripts in the web player.
-
-**Transcripts: Shortcode**
-
-The shortcode `[podlove-transcript]` displays a pretty html version of the transcript for your website. 
-
-**Transcripts: Twig Template Support**
-
-Of course there is a fully featured template API for transcripts as well. For example:
-
-{% for group in episode.transcript %}
-    <div class="ts-group">
-
-        <div class="ts-speaker-avatar">
-            {{ group.contributor.image.html({width: 50}) }}
-        </div>
-
-        <div class="ts-text">
-            <div class="ts-speaker">
-                {{ group.contributor.name }}
-            </div>
-
-            <div class="ts-content">
-                {% for line in group.items %}
-                <span class="ts-line">{{ line.content }}</span>
-                {% endfor %}
-            </div>
-        </div>
-        
-    </div>
-{% endfor %}
-
-See [https://docs.podlove.org/podlove-publisher/reference/template-tags.html](https://docs.podlove.org/podlove-publisher/reference/template-tags.html "documentation") for all details.
-
-**Global Podcast Analytics**
-
-The following metrics are now available for the whole podcast:
-
-- downloads per month
-- top episodes
-- episode asset
-- podcast client
-- operating system
-- download source
-
-**Raw Analytics**
-
-I wouldn’t call this an Analytics API but since it exists to power the analytics screen, I might as well document it. The following endpoints return results in CSV format for easy processing or import to spreadsheets.
-
-Here is an example call that returns the number of downloads in March 2019:
-
-	https://your.domain/wp-admin/admin-ajax.php?action=podlove-analytics-global-downloads-per-month&date_from=2019-03-01T00:00:00.000Z&date_to=2019-03-31T23:59:59.999Z
-
-All requests take the same three parameters:
-
-- `action` defines what data you want
-- `date_from` is the start date in ISO 8601
-- `date_end` is the end date in ISO 8601
-
-Available actions are:
-
-- podlove-analytics-global-downloads-per-month
-- podlove-analytics-global-top-episodes
-- podlove-analytics-global-assets
-- podlove-analytics-global-clients
-- podlove-analytics-global-systems
-- podlove-analytics-global-sources
-
-You need to be logged in with admin permissions for the requests to work.
-
-Disclaimer: Depending on the popularity of your podcast and chosen date range, the requests may take a long time to respond, or even fail if the calculation takes longer than the timeout defined in your web server.
-
-**Other**
-
-- background jobs: add button to abort job
-- new tab style for chapter marks section
-- Podlove Web Player 4 fallback for old browsers and disabled JavaScript
+* first version of Shownotes module
 
 ----
 
